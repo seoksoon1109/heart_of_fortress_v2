@@ -1,0 +1,10 @@
+name: HeartOfFortress
+main: io.github.seoksoon.heartoffortress.HeartOfFortressPlugin
+version: 1.0.0
+api-version: 1.21
+author: seoksoon
+description: "A PvP mini-game plugin for Paper 1.21.4 (Kotlin)"
+commands:
+  hof:
+    description: Main command for Heart of Fortress
+    usage: /<command>

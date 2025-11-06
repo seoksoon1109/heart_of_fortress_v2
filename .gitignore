@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Kotlin build cache
+*.class
+*.kt~
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Plugin runtime data
+plugins/
+hof.db
