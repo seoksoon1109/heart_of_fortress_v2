@@ -19,6 +19,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
 }
 
 tasks {
@@ -38,5 +39,18 @@ tasks {
 
     jar {
         archiveBaseName.set("HeartOfFortress")
+
+        // ✅ Kotlin 런타임을 플러그인 jar에 포함
+        from({
+            configurations.runtimeClasspath.get()
+                .filter {
+                    it.name.contains("kotlin-stdlib") ||
+                            it.name.contains("kotlin-reflect")
+                }
+                .map { if (it.isDirectory) it else zipTree(it) }
+        })
+
+        // 중복 방지
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }

@@ -3,8 +3,17 @@ main: io.github.seoksoon.heartoffortress.HeartOfFortressPlugin
 version: 1.0.0
 api-version: 1.21
 author: seoksoon
-description: "A PvP mini-game plugin for Paper 1.21.4 (Kotlin)"
+description: Heart of Fortress Paper Plugin
+
 commands:
   hof:
-    description: Main command for Heart of Fortress
-    usage: /<command>
+    description: Heart of Fortress 명령어
+    usage: /hof <subcommand>
+    permission: heartoffortress.command
+permissions:
+  heartoffortress.command:
+    default: true
+  heartoffortress.start:
+    default: op
+  heartoffortress.stop:
+    default: op

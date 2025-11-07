@@ -1,7 +1,10 @@
 package io.github.seoksoon.heartoffortress.game
 
 import io.github.seoksoon.heartoffortress.GameState
+import io.github.seoksoon.heartoffortress.util.EffectUtil
 import io.github.seoksoon.heartoffortress.util.MessageUtil
+import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Sound
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 
@@ -21,25 +24,36 @@ class GameManager(private val plugin: JavaPlugin) {
         }
 
         state = GameState.COUNTDOWN
-        MessageUtil.broadcast("§e게임이 10초 후 시작됩니다!")
-
-        // TODO: CountDown 로직 구현 예정 (TaskScheduler)
         MessageUtil.debug("GameState 변경: WAITING → COUNTDOWN")
-        var timeLeft = 10
 
-        countdownTask = object : BukkitRunnable(){
+        var timeLeft = 10
+        EffectUtil.showTitleToAll("§e게임이 10초 후 시작됩니다!", "준비하세요!", NamedTextColor.GOLD)
+
+        countdownTask = object : BukkitRunnable() {
             override fun run() {
                 if (timeLeft <= 0) {
+                    EffectUtil.showTitleToAll("§a게임 시작!", "", NamedTextColor.GREEN)
+                    EffectUtil.playSoundAll(Sound.ENTITY_PLAYER_LEVELUP)
                     cancel()
                     startGame()
                     return
-                } else {
-                    MessageUtil.broadcast("${timeLeft}초 후 게임이 시작됩니다!")
                 }
-                timeLeft -= 1
+
+                // 남은 시간 Title 표시
+                EffectUtil.showTitleToAll(
+                    "$timeLeft",
+                    "초 후 게임이 시작됩니다!",
+                    NamedTextColor.GOLD
+                )
+
+                // 경험치 먹는 소리로 카운트다운 효과
+                EffectUtil.playSoundAll(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
+
+                timeLeft--
             }
         }
-        countdownTask!!.runTaskTimer(plugin, 0L,20L)
+
+        countdownTask!!.runTaskTimer(plugin, 0L, 20L)
     }
 
     /**
@@ -72,7 +86,10 @@ class GameManager(private val plugin: JavaPlugin) {
     /**
      * 게임 종료 처리
      */
-    fun endGame() {
+    fun stopGame() {
+        if (state == GameState.COUNTDOWN) {
+            cancelCountdown()
+        }
         if (state != GameState.RUNNING) {
             MessageUtil.broadcast("§c진행 중인 게임이 없습니다.")
             return
