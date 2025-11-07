@@ -1,5 +1,6 @@
 package io.github.seoksoon.heartoffortress
 
+import io.github.seoksoon.heartoffortress.game.GameManager
 import org.bukkit.plugin.java.JavaPlugin
 
 class HeartOfFortressPlugin : JavaPlugin() {
@@ -7,10 +8,8 @@ class HeartOfFortressPlugin : JavaPlugin() {
         lateinit var instance: HeartOfFortressPlugin
             private set
 
-        /* lateinit var gameManager: GameManager
+        lateinit var gameManager: GameManager
             private set
-
-         */
     }
 
     override fun onEnable() {
