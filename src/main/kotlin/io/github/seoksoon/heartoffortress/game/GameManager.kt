@@ -3,7 +3,10 @@ package io.github.seoksoon.heartoffortress.game
 import io.github.seoksoon.heartoffortress.GameState
 import io.github.seoksoon.heartoffortress.util.EffectUtil
 import io.github.seoksoon.heartoffortress.util.MessageUtil
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.Sound
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
@@ -75,7 +78,7 @@ class GameManager(private val plugin: JavaPlugin) {
             MessageUtil.broadcast("§c카운트다운 상태에서만 시작할 수 있습니다!")
             return
         }
-
+        setSpectator()
         state = GameState.RUNNING
         MessageUtil.broadcast("§a게임이 시작되었습니다!")
         MessageUtil.debug("GameState 변경: COUNTDOWN → RUNNING")
@@ -111,5 +114,20 @@ class GameManager(private val plugin: JavaPlugin) {
         MessageUtil.log("GameState 변경: ENDED → WAITING")
 
         // TODO: 월드 리셋 / 하트 복원 등 초기화 로직
+    }
+
+    /**
+     * 팀이 존재하지 않는 사람 관전자로 전환
+     */
+
+    fun setSpectator(){
+        for (player in Bukkit.getOnlinePlayers()) {
+            if (!TeamManager.isInAnyTeam(player)) {
+                player.gameMode = GameMode.SPECTATOR
+                MessageUtil.send(player,"팀에 속하지 않아 관전 모드로 전환되었습니다.", NamedTextColor.GRAY)
+            } else {
+                player.gameMode = GameMode.SURVIVAL
+            }
+        }
     }
 }

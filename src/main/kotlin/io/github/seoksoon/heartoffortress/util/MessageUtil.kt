@@ -10,8 +10,8 @@ import org.bukkit.entity.Player
 
 object MessageUtil {
 
-    private val legacySerializer = LegacyComponentSerializer.legacySection()
-    private val prefix = Component.text("[HOF] ", NamedTextColor.GOLD)
+    private val legacySerializer = LegacyComponentSerializer.legacyAmpersand()
+    private val prefix = legacySerializer.deserialize("&6[HOF] ")
     private val logger by lazy { HeartOfFortressPlugin.instance.logger }
 
     fun broadcast(message: String) {
@@ -26,6 +26,21 @@ object MessageUtil {
 
     fun send(sender: CommandSender, message: String) {
         val component = prefix.append(legacySerializer.deserialize(message))
+        sender.sendMessage(component)
+    }
+
+    fun broadcast(message: String, color: NamedTextColor) {
+        val component = prefix.append(Component.text(message, color))
+        Bukkit.broadcast(component)
+    }
+
+    fun send(player: Player, message: String, color: NamedTextColor) {
+        val component = prefix.append(Component.text(message, color))
+        player.sendMessage(component)
+    }
+
+    fun send(sender: CommandSender, message: String, color: NamedTextColor) {
+        val component = prefix.append(Component.text(message, color))
         sender.sendMessage(component)
     }
 

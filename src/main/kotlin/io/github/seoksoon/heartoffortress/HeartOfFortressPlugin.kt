@@ -2,6 +2,7 @@ package io.github.seoksoon.heartoffortress
 
 import io.github.seoksoon.heartoffortress.command.CommandRegistry
 import io.github.seoksoon.heartoffortress.game.GameManager
+import io.github.seoksoon.heartoffortress.game.TeamManager
 import org.bukkit.plugin.java.JavaPlugin
 
 class HeartOfFortressPlugin : JavaPlugin() {
@@ -16,6 +17,7 @@ class HeartOfFortressPlugin : JavaPlugin() {
     override fun onEnable() {
         instance = this
         gameManager = GameManager(this)
+        TeamManager.init(this)
         saveDefaultConfig()
         CommandRegistry.registerAll(this, gameManager)
         logger.info("💖 Heart of Fortress (Kotlin) enabled successfully!")
