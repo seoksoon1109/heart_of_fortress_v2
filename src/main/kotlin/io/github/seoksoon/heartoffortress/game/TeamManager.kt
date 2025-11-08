@@ -46,8 +46,14 @@ object TeamManager {
         return true
     }
 
-    /** 🎲 랜덤 팀 배정 (롤링 타이틀 효과 포함) */
-    fun joinRandom(player: Player) {
+    /** 🎲 모든 플레이어 랜덤 팀 배정 (룰렛 효과 포함) */
+    fun joinRandomAll() {
+        val players = Bukkit.getOnlinePlayers()
+        if (players.isEmpty()) {
+            MessageUtil.log("No players online for random team assignment.")
+            return
+        }
+
         val red = scoreboard.getTeam("RED")!!
         val blue = scoreboard.getTeam("BLUE")!!
 
@@ -58,39 +64,45 @@ object TeamManager {
 
         fun rollNext() {
             if (rollCount >= totalRolls) {
-                assignFinalTeam(player, red, blue)
+                players.forEach { player ->
+                    assignFinalTeam(player, red, blue)
+                }
                 return
             }
 
             rollCount++
 
-            val isRed = rollCount % 2 == 0
-            val teamName = if (isRed) "RED" else "BLUE"
-            val color = if (isRed) NamedTextColor.RED else NamedTextColor.BLUE
             val progress = (rollCount.toDouble() / totalRolls).coerceIn(0.05, 0.95)
             val adjustedProgress = 0.05 + 0.9 * progress
             val sinFactor = kotlin.math.sin(adjustedProgress * Math.PI)
             val currentDelay = (startDelay - (startDelay - maxDelay) * sinFactor).toLong()
 
-            player.showTitle(
-                Title.title(
-                    Component.text(teamName, color),
-                    Component.text("랜덤 배정 중...", NamedTextColor.GRAY),
-                    Title.Times.times(Duration.ZERO, Duration.ofMillis(150), Duration.ZERO)
-                )
-            )
-
+            val isRed = rollCount % 2 == 0
+            val teamName = if (isRed) "RED" else "BLUE"
+            val color = if (isRed) NamedTextColor.RED else NamedTextColor.BLUE
             val pitch = 1.0f + ((1f - sinFactor.toFloat()) * 0.3f)
-            player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, pitch)
+
+            // 🔔 모든 플레이어에게 동일하게 출력
+            players.forEach { player ->
+                player.showTitle(
+                    Title.title(
+                        Component.text(teamName, color),
+                        Component.text("랜덤 배정 중...", NamedTextColor.GRAY),
+                        Title.Times.times(Duration.ZERO, Duration.ofMillis(150), Duration.ZERO)
+                    )
+                )
+                player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, pitch)
+            }
 
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
                 rollNext()
             }, currentDelay)
         }
 
-        MessageUtil.send(player, "&e팀이 랜덤으로 배정됩니다...")
+        MessageUtil.broadcast("&e모든 플레이어가 랜덤으로 팀이 배정됩니다...")
         rollNext()
     }
+
 
 
 

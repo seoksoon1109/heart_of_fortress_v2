@@ -89,21 +89,29 @@ class GameManager(private val plugin: JavaPlugin) {
     /**
      * 게임 종료 처리
      */
-    fun stopGame() {
-        if (state == GameState.COUNTDOWN) {
-            cancelCountdown()
-        }
-        if (state != GameState.RUNNING) {
-            MessageUtil.broadcast("§c진행 중인 게임이 없습니다.")
+    fun stopGame(force: Boolean = false) {
+        if (state == GameState.WAITING) {
+            MessageUtil.broadcast("&c아직 시작되지 않은 게임은 중단할 수 없습니다.")
             return
         }
 
-        state = GameState.ENDED
-        MessageUtil.broadcast("§c게임이 종료되었습니다!")
-        MessageUtil.debug("GameState 변경: RUNNING → ENDED")
+        if (force) {
+            MessageUtil.broadcast("&c관리자에 의해 게임이 강제 종료되었습니다.")
+            resetGame() // ✅ 즉시 리셋
+            return
+        }
 
-        // TODO: 승리 조건 판정 로직 추가
+        // 일반적인 게임 종료 시
+        state = GameState.ENDED
+        MessageUtil.broadcast("&e게임이 종료되었습니다!")
+        EffectUtil.playSoundAll(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+
+        // 결과 표시 후 잠시 뒤 리셋
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            resetGame()
+        }, 100L) // 약 5초 후
     }
+
 
     /**
      * 게임 초기화
@@ -112,7 +120,7 @@ class GameManager(private val plugin: JavaPlugin) {
         state = GameState.WAITING
         MessageUtil.broadcast("§7게임이 초기화되었습니다. 플레이어를 대기 상태로 복귀시킵니다.")
         MessageUtil.log("GameState 변경: ENDED → WAITING")
-
+        resetGameMode()
         // TODO: 월드 리셋 / 하트 복원 등 초기화 로직
     }
 
@@ -128,6 +136,12 @@ class GameManager(private val plugin: JavaPlugin) {
             } else {
                 player.gameMode = GameMode.SURVIVAL
             }
+        }
+    }
+
+    fun resetGameMode(){
+        for (player in Bukkit.getOnlinePlayers()) {
+            player.gameMode = GameMode.CREATIVE
         }
     }
 }

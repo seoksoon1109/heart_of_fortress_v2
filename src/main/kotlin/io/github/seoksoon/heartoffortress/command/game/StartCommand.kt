@@ -1,11 +1,12 @@
-package io.github.seoksoon.heartoffortress.command
+package io.github.seoksoon.heartoffortress.command.game
 
+import io.github.seoksoon.heartoffortress.command.SubCommand
 import io.github.seoksoon.heartoffortress.game.GameManager
 import io.github.seoksoon.heartoffortress.util.MessageUtil
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class StopCommand(private val gameManager: GameManager) : SubCommand {
+class StartCommand(private val gameManager: GameManager) : SubCommand {
 
     override fun onSubCommand(sender: CommandSender, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -18,13 +19,13 @@ class StopCommand(private val gameManager: GameManager) : SubCommand {
             return true
         }
 
-        if (gameManager.state.name == "WAITING") {
-            MessageUtil.send(sender, "&c아직 게임이 시작되지 않았습니다!")
+        if (gameManager.state.name != "WAITING") {
+            MessageUtil.send(sender, "&c이미 게임이 진행 중입니다!")
             return true
         }
 
-        gameManager.stopGame()
-        MessageUtil.send(sender, "&c게임이 중단되었습니다.")
+        gameManager.startCountdown()
+        MessageUtil.send(sender, "&a게임 시작 카운트다운이 시작되었습니다!")
         return true
     }
 }
