@@ -3,7 +3,6 @@ package io.github.seoksoon.heartoffortress.game
 import io.github.seoksoon.heartoffortress.GameState
 import io.github.seoksoon.heartoffortress.util.EffectUtil
 import io.github.seoksoon.heartoffortress.util.MessageUtil
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -37,8 +36,8 @@ class GameManager(private val plugin: JavaPlugin) {
                 if (timeLeft <= 0) {
                     EffectUtil.showTitleToAll("§a게임 시작!", "", NamedTextColor.GREEN)
                     EffectUtil.playSoundAll(Sound.ENTITY_PLAYER_LEVELUP)
-                    cancel()
                     startGame()
+                    cancel()
                     return
                 }
 
@@ -67,7 +66,6 @@ class GameManager(private val plugin: JavaPlugin) {
         countdownTask?.cancel()
         countdownTask = null
         state = GameState.WAITING
-        MessageUtil.broadcast("§c카운트다운이 취소되었습니다.")
     }
 
     /**
@@ -95,9 +93,15 @@ class GameManager(private val plugin: JavaPlugin) {
             return
         }
 
+        if (state == GameState.COUNTDOWN) {
+            MessageUtil.broadcast("&c관리자에 의해 시작 카운트 다운이 중단되었습니다!")
+            cancelCountdown()
+            return
+        }
+
         if (force) {
             MessageUtil.broadcast("&c관리자에 의해 게임이 강제 종료되었습니다.")
-            resetGame() // ✅ 즉시 리셋
+            resetGame()
             return
         }
 
@@ -128,18 +132,18 @@ class GameManager(private val plugin: JavaPlugin) {
      * 팀이 존재하지 않는 사람 관전자로 전환
      */
 
-    fun setSpectator(){
+    private fun setSpectator() {
         for (player in Bukkit.getOnlinePlayers()) {
             if (!TeamManager.isInAnyTeam(player)) {
                 player.gameMode = GameMode.SPECTATOR
-                MessageUtil.send(player,"팀에 속하지 않아 관전 모드로 전환되었습니다.", NamedTextColor.GRAY)
+                MessageUtil.send(player, "팀에 속하지 않아 관전 모드로 전환되었습니다.", NamedTextColor.GRAY)
             } else {
                 player.gameMode = GameMode.SURVIVAL
             }
         }
     }
 
-    fun resetGameMode(){
+    private fun resetGameMode() {
         for (player in Bukkit.getOnlinePlayers()) {
             player.gameMode = GameMode.CREATIVE
         }
