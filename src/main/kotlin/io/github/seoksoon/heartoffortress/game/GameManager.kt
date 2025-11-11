@@ -20,7 +20,7 @@ class GameManager(private val plugin: JavaPlugin) {
      * 게임 시작 카운트다운 진입
      */
     fun startCountdown() {
-        if (state != GameState.WAITING) {
+        if (isRunning() || isCountdown()) {
             MessageUtil.broadcast("§c이미 게임이 시작 중입니다!")
             return
         }
@@ -63,6 +63,7 @@ class GameManager(private val plugin: JavaPlugin) {
      */
 
     fun cancelCountdown() {
+        if (!isCountdown()) return
         countdownTask?.cancel()
         countdownTask = null
         state = GameState.WAITING
@@ -72,7 +73,7 @@ class GameManager(private val plugin: JavaPlugin) {
      * 실제 게임 시작
      */
     fun startGame() {
-        if (state != GameState.COUNTDOWN) {
+        if (!isCountdown()) {
             MessageUtil.broadcast("§c카운트다운 상태에서만 시작할 수 있습니다!")
             return
         }
@@ -80,6 +81,10 @@ class GameManager(private val plugin: JavaPlugin) {
         state = GameState.RUNNING
         MessageUtil.broadcast("§a게임이 시작되었습니다!")
         MessageUtil.debug("GameState 변경: COUNTDOWN → RUNNING")
+        for (player in Bukkit.getOnlinePlayers()) {
+            if (player.isDead) continue
+            player.health = 0.0
+        }
 
         // TODO: 초기화 로직 (팀 배정, 하트 체력 설정 등)
     }
@@ -88,12 +93,12 @@ class GameManager(private val plugin: JavaPlugin) {
      * 게임 종료 처리
      */
     fun stopGame(force: Boolean = false) {
-        if (state == GameState.WAITING) {
+        if (isWaiting()) {
             MessageUtil.broadcast("&c아직 시작되지 않은 게임은 중단할 수 없습니다.")
             return
         }
 
-        if (state == GameState.COUNTDOWN) {
+        if (isCountdown()) {
             MessageUtil.broadcast("&c관리자에 의해 시작 카운트 다운이 중단되었습니다!")
             cancelCountdown()
             return
@@ -148,4 +153,8 @@ class GameManager(private val plugin: JavaPlugin) {
             player.gameMode = GameMode.CREATIVE
         }
     }
+    fun isRunning(): Boolean = state == GameState.RUNNING
+    fun isWaiting(): Boolean = state == GameState.WAITING
+    fun isCountdown(): Boolean = state == GameState.COUNTDOWN
+    fun isEnded(): Boolean = state == GameState.ENDED
 }

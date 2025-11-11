@@ -1,1 +1,26 @@
 debug: true
+
+spawns:
+  default:
+    world: world
+    x: 44.5
+    y: 102.0
+    z: 46.0
+    yaw: 0
+    pitch: 0
+
+  RED:
+    world: world
+    x: 188.5
+    y: 14.0
+    z: 45.5
+    yaw: 90.0
+    pitch: 0.0
+
+  BLUE:
+    world: world
+    x: -100.5
+    y: 14.0
+    z: 45.5
+    yaw: -90.0
+    pitch: 0.0
