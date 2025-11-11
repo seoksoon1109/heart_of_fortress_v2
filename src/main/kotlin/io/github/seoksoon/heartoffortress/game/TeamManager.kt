@@ -122,7 +122,7 @@ object TeamManager {
                 Title.Times.times(Duration.ofMillis(300), Duration.ofMillis(1200), Duration.ofMillis(400))
             )
         )
-        player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
+        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
 
         val message = Component.text()
             .append(Component.text("[HOF] ", NamedTextColor.GOLD))

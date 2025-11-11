@@ -1,6 +1,7 @@
 package io.github.seoksoon.heartoffortress.game
 
 import io.github.seoksoon.heartoffortress.GameState
+import io.github.seoksoon.heartoffortress.ability.AbilityManager
 import io.github.seoksoon.heartoffortress.util.EffectUtil
 import io.github.seoksoon.heartoffortress.util.MessageUtil
 import net.kyori.adventure.text.format.NamedTextColor
@@ -28,14 +29,14 @@ class GameManager(private val plugin: JavaPlugin) {
         state = GameState.COUNTDOWN
         MessageUtil.debug("GameState 변경: WAITING → COUNTDOWN")
 
-        var timeLeft = 10
-        EffectUtil.showTitleToAll("§e게임이 10초 후 시작됩니다!", "준비하세요!", NamedTextColor.GOLD)
+        var timeLeft = 5
+        EffectUtil.showTitleToAll("§e게임이 ${timeLeft}초 후 시작됩니다!", "준비하세요!", NamedTextColor.GOLD)
 
         countdownTask = object : BukkitRunnable() {
             override fun run() {
                 if (timeLeft <= 0) {
                     EffectUtil.showTitleToAll("§a게임 시작!", "", NamedTextColor.GREEN)
-                    EffectUtil.playSoundAll(Sound.ENTITY_PLAYER_LEVELUP)
+                    EffectUtil.playSoundAll(Sound.UI_TOAST_CHALLENGE_COMPLETE)
                     startGame()
                     cancel()
                     return
@@ -44,7 +45,7 @@ class GameManager(private val plugin: JavaPlugin) {
                 // 남은 시간 Title 표시
                 EffectUtil.showTitleToAll(
                     "$timeLeft",
-                    "초 후 게임이 시작됩니다!",
+                    "",
                     NamedTextColor.GOLD
                 )
 
@@ -77,6 +78,7 @@ class GameManager(private val plugin: JavaPlugin) {
             MessageUtil.broadcast("§c카운트다운 상태에서만 시작할 수 있습니다!")
             return
         }
+        initGame()
         setSpectator()
         state = GameState.RUNNING
         MessageUtil.broadcast("§a게임이 시작되었습니다!")
@@ -85,8 +87,6 @@ class GameManager(private val plugin: JavaPlugin) {
             if (player.isDead) continue
             player.health = 0.0
         }
-
-        // TODO: 초기화 로직 (팀 배정, 하트 체력 설정 등)
     }
 
     /**
@@ -119,6 +119,11 @@ class GameManager(private val plugin: JavaPlugin) {
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
             resetGame()
         }, 100L) // 약 5초 후
+    }
+
+    fun initGame(){
+        AbilityManager.resetAllLevels()
+        MessageUtil.debug("initGame() 호출 완료")
     }
 
 
